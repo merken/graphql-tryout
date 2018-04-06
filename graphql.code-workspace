@@ -1,0 +1,27 @@
+{
+	"folders": [
+		{
+			"path": "graphqlclient"
+		},
+		{
+			"path": "graphqlapi"
+		}
+	],
+	"settings": {},
+	"launch": {
+		"configurations": [],
+		"compounds": [{
+			"name": "Launch graphql-tryout",
+			"configurations": [
+			  {
+				"folder": "graphqlapi",
+				"name": ".NET Core Launch (web)"
+			  },
+			  {
+				"folder": "graphqlclient",
+				"name": "Launch Chrome against localhost"
+			  }
+			]
+		}]
+	}
+}
