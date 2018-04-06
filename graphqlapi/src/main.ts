@@ -3,10 +3,16 @@ import * as bodyParser from 'body-parser';
 import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
 //import {Schema} from './schema';
 import * as cors from 'cors';
+import { MongoClient, Db } from 'mongodb';
 
 // Default port or given one.
 export const GRAPHQL_ROUTE = "/graphql";
 export const GRAPHIQL_ROUTE = "/graphiql";
+
+export const MONGO_USER = "mrkdb1";
+export const MONGO_PASSWORD = encodeURIComponent("XftdWmVEFWPL63piP4OhmtEVjtLSViZRsCCXR4ZgV5dVQVY9AV76XDST8pkmH5H77wt20rSmLSOo8Kpmi2PaPQ==");
+export const MONGO_CONNECTION = `mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mrkdb1.documents.azure.com:10255/?ssl=true`;
+export const MONGO_DB = "bookdb";
 
 interface IMainOptions {
     enableCors: boolean;
@@ -30,27 +36,33 @@ export class TestConnector {
     }
 }
 
-export function main(options: IMainOptions) {
-    let app = express();
+export async function main(options: IMainOptions) {
+    const app = express();
+    const connection = await MongoClient.connect(MONGO_CONNECTION);
+    const db = connection.db(MONGO_DB);
 
-    if (true === options.enableCors) {
-        app.use(GRAPHQL_ROUTE, cors());
-    }
+    app.use(cors());
 
-    let testConnector = new TestConnector();
-    app.use(GRAPHQL_ROUTE, bodyParser.json(), graphqlExpress({
-        context: {
-            testConnector,
-            //TODO add connnectors
-        },
-         schema: null,
-    }));
+    app.get('/books', async (req: express.Request, res: express.Response) => {
+        const books = await db.collection("books").find({}).toArray();
+        res.json(books);
+        
+    });
 
-    if (true === options.enableGraphiql) {
-        app.use(GRAPHIQL_ROUTE, graphiqlExpress({ endpointURL: GRAPHQL_ROUTE }));
-    }
+    // let testConnector = new TestConnector();
+    // app.use(GRAPHQL_ROUTE, bodyParser.json(), graphqlExpress({
+    //     context: {
+    //         testConnector,
+    //         //TODO add connnectors
+    //     },
+    //      schema: null,
+    // }));
 
-    return new Promise((resolve:any, reject:any) => {
+    // if (true === options.enableGraphiql) {
+    //     app.use(GRAPHIQL_ROUTE, graphiqlExpress({ endpointURL: GRAPHQL_ROUTE }));
+    // }
+
+    return new Promise((resolve: any, reject: any) => {
         let server = app.listen(options.port, () => {
             /* istanbul ignore if: no need to test verbose print */
             if (options.verbose) {
@@ -66,20 +78,12 @@ export function main(options: IMainOptions) {
 
 /* istanbul ignore if: main scope */
 if (require.main === module) {
-    const PORT = parseInt(process.env.PORT || '3000', 10);
-
-    // Either to export GraphiQL (Debug Interface) or not.
-    const NODE_ENV = process.env.NODE_ENV !== "production" ? "dev" : "production";
-
-    const EXPORT_GRAPHIQL = NODE_ENV !== "production";
-
-    // Enable cors (cross-origin HTTP request) or not.
-    const ENABLE_CORS = NODE_ENV !== "production";
+    const PORT = parseInt(process.env.PORT || '4000', 10);
 
     main({
-        enableCors: ENABLE_CORS,
-        enableGraphiql: EXPORT_GRAPHIQL,
-        env: NODE_ENV,
+        enableCors: true,
+        enableGraphiql: true,
+        env: 'dev',
         port: PORT,
         verbose: true,
     });
