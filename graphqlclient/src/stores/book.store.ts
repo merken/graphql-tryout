@@ -1,23 +1,22 @@
 import Dispatcher from '../dispatcher';
 import { ActionTypes, Action } from '../actions';
 import { EventEmitter } from 'events'
+import register from '../register';
 
-export interface IBookStore {
-    getState(): any;
-}
-
-class BookStoreImpl extends EventEmitter implements IBookStore {
+class BookStore extends EventEmitter {
+    private dispatcher: Dispatcher;
     private books: any[];
+    
     constructor(props?: any) {
         super();
+        this.dispatcher = register.resolve("Dispatcher") as Dispatcher;
         this.registerForActions();
     }
 
     private registerForActions() {
-        Dispatcher.register((action: Action) => {
+        this.dispatcher.registerForActions((action: Action) => {
             switch (action.type) {
                 case ActionTypes.BOOKS_RECEIVED:
-                debugger
                     this.books = action.payload;
                     this.emit("change");
                     break;
@@ -32,4 +31,4 @@ class BookStoreImpl extends EventEmitter implements IBookStore {
     }
 }
 
-export default new BookStoreImpl();
+export default BookStore;

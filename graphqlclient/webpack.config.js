@@ -1,9 +1,14 @@
+var webpack = require('webpack');
+var path = require('path');
+
 module.exports = {
+
     entry: "./src/index.tsx",
     output: {
         filename: "bundle.js",
         path: __dirname + "/dist"
     },
+    mode: "development",
 
     // Enable sourcemaps for debugging webpack's output.
     devtool: "source-map",
@@ -13,13 +18,37 @@ module.exports = {
         extensions: [".ts", ".tsx", ".js", ".json"]
     },
 
+    plugins: [
+        new webpack.LoaderOptionsPlugin({
+          options: {
+            test: /\.ts$/,
+            ts: {
+              compiler: 'typescript',
+              configFileName: 'tsconfig.json'
+            },
+            tslint: {
+              emitErrors: true,
+              failOnHint: true
+            }
+          }
+        })
+      ],
+
     module: {
         rules: [
-            // All files with a '.ts' or '.tsx' extension will be handled by 'awesome-typescript-loader'.
-            { test: /\.tsx?$/, loader: "ts-loader" },
+            // All files with a '.ts' or '.tsx' extension will be handled by 'ts-loader' or awesome-typescript-loader'.
+            {
+                test: /\.tsx?$/,
+                loader: "ts-loader"
+            },
 
             // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
-            { enforce: "pre", test: /\.js$/, loader: "source-map-loader" }
+            {
+                enforce: "pre",
+                test: /\.js$/,
+                loader: "source-map-loader",
+                exclude: []
+            }
         ]
     },
 
@@ -31,4 +60,9 @@ module.exports = {
         "react": "React",
         "react-dom": "ReactDOM"
     },
+
+    node: {
+        fs: "empty"
+    }
+
 };

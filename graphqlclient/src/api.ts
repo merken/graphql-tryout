@@ -1,14 +1,17 @@
-//This is the general API object
+import BooksActionsCreator from "./actioncreators/books.actions.creator";
+import register from "./register";
 
-import ServerActions from "./actions/server.actions";
+class Api {
+    private booksActionsCreator: BooksActionsCreator;
+    constructor() {
+        this.booksActionsCreator = register.resolve("BooksActionsCreator") as BooksActionsCreator;
+    }
 
-const API = {
     async fetchBooks(): Promise<any> {
         const response = await fetch('http://localhost:4000/books');
         const books = await response.json();
-        debugger
-        ServerActions.booksReceived(books);
+        this.booksActionsCreator.booksReceived(books);
     }
 };
 
-export default API;
+export default Api;
