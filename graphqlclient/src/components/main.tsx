@@ -1,27 +1,33 @@
-import * as React from "react";
-import Api from "../api";
-import BookStore from '../stores/book.store';
-import register from "../register";
+import * as React from 'react';
 
-interface State {
-    books: any[];
+import Api from '../api';
+import { inject, provideSingleton } from '../inversify.config';
+import BookStore from '../stores/book.store';
+
+export interface AppProps { }
+
+export interface AppState {
+    books: any[]
 }
 
-export class Main extends React.Component<{}, State> {
+@provideSingleton("Main")
+export class Main extends React.Component<AppProps, AppState> {
+    @inject("Api")
     private api: Api;
+
+    @inject("BookStore")
     private bookStore: BookStore;
 
-    constructor(props?: any) {
+    constructor(props: any) {
         super(props);
         this.state = { books: [] };
         this.onChange = this.onChange.bind(this);
-        this.api = (register.resolve("Api") as Api);
-        this.bookStore = (register.resolve("BookStore") as BookStore);
     }
 
     componentDidMount() {
         this.bookStore.on("change", this.onChange);
         this.api.fetchBooks();
+        this.bookStore.getState();
     }
 
     componentWillUnmount() {
@@ -32,7 +38,7 @@ export class Main extends React.Component<{}, State> {
         this.setState(this.bookStore.getState());
     }
 
-    render() {
+    render(): React.ReactElement<{}> {
         let content = this.state.books.map(book => {
             return <li key={book._id}>{book.title}</li>;
         })

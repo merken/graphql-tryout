@@ -1,11 +1,13 @@
 import { ActionTypes } from '../actions';
 import Dispatcher from '../dispatcher';
-import register from '../register';
+import { inject, provideSingleton } from '../inversify.config';
 
+@provideSingleton("BooksActionsCreator")
 class BooksActionsCreator {
+    @inject("Dispatcher")
     private dispatcher: Dispatcher;
+
     constructor() {
-        this.dispatcher = register.resolve("Dispatcher") as Dispatcher;
     }
 
     booksReceived(books: any) {

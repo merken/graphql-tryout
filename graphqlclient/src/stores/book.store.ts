@@ -1,15 +1,20 @@
-import Dispatcher from '../dispatcher';
-import { ActionTypes, Action } from '../actions';
-import { EventEmitter } from 'events'
-import register from '../register';
+import { EventEmitter } from 'events';
 
+import { Action, ActionTypes } from '../actions';
+import Dispatcher from '../dispatcher';
+import { inject, provideSingleton } from '../inversify.config';
+import * as inversify from 'inversify';
+import { injectable } from 'inversify';
+inversify.decorate(injectable(), EventEmitter);
+
+@provideSingleton("BookStore")
 class BookStore extends EventEmitter {
+    @inject("Dispatcher")
     private dispatcher: Dispatcher;
     private books: any[];
-    
-    constructor(props?: any) {
+
+    constructor() {
         super();
-        this.dispatcher = register.resolve("Dispatcher") as Dispatcher;
         this.registerForActions();
     }
 

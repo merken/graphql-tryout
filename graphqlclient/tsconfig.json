@@ -1,12 +1,21 @@
 {
     "compilerOptions": {
-        "outDir": "./dist/",
-        "sourceMap": true,
         "noImplicitAny": true,
         "module": "commonjs",
         "target": "es5",
         "jsx": "react",
-        "lib": [ "es2015", "dom" ]
+        "allowJs": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "outDir": "./dist/",
+        "sourceMap": true,
+        "lib": [
+            "es6",
+            "dom"
+        ],
+        "types": [
+            "reflect-metadata"
+        ],
     },
     "include": [
         "./src/**/*"

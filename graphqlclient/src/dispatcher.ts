@@ -1,6 +1,9 @@
 import * as flux from 'flux';
-import { Action } from './actions';
 
+import { Action } from './actions';
+import { provideSingleton } from './inversify.config';
+
+@provideSingleton("Dispatcher")
 class Dispatcher {
     private _dispatcher: flux.Dispatcher<Action>;
     constructor() {
