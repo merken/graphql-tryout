@@ -36,8 +36,6 @@ export async function main(options: IMainOptions) {
     const connection = await MongoClient.connect(MONGO_CONNECTION);
     const db = connection.db(MONGO_DB);
 
-    app.use(cors());
-
     app.use('/graphql', cors(), graphqlHTTP({
         schema: initializeSchema(db),
         graphiql: true
