@@ -1,10 +1,11 @@
-import * as express from 'express';
-import * as bodyParser from 'body-parser';
-import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
-//import {Schema} from './schema';
 import * as cors from 'cors';
-import { MongoClient, Db } from 'mongodb';
+import * as express from 'express';
+import { MongoClient } from 'mongodb';
 
+import initializeSchema from './schema';
+import * as graphqlHTTP from 'express-graphql';
+
+// import {grap} from 'express-graphql';
 // Default port or given one.
 export const GRAPHQL_ROUTE = "/graphql";
 export const GRAPHIQL_ROUTE = "/graphiql";
@@ -30,12 +31,6 @@ function verbosePrint(port: number, enableGraphiql: boolean) {
     }
 }
 
-export class TestConnector {
-    public get testString() {
-        return "it works from connector as well!";
-    }
-}
-
 export async function main(options: IMainOptions) {
     const app = express();
     const connection = await MongoClient.connect(MONGO_CONNECTION);
@@ -43,24 +38,10 @@ export async function main(options: IMainOptions) {
 
     app.use(cors());
 
-    app.get('/books', async (req: express.Request, res: express.Response) => {
-        const books = await db.collection("books").find({}).toArray();
-        res.json(books);
-        
-    });
-
-    // let testConnector = new TestConnector();
-    // app.use(GRAPHQL_ROUTE, bodyParser.json(), graphqlExpress({
-    //     context: {
-    //         testConnector,
-    //         //TODO add connnectors
-    //     },
-    //      schema: null,
-    // }));
-
-    // if (true === options.enableGraphiql) {
-    //     app.use(GRAPHIQL_ROUTE, graphiqlExpress({ endpointURL: GRAPHQL_ROUTE }));
-    // }
+    app.use('/graphql', cors(), graphqlHTTP({
+        schema: initializeSchema(db),
+        graphiql: true
+    }));
 
     return new Promise((resolve: any, reject: any) => {
         let server = app.listen(options.port, () => {

@@ -9,9 +9,16 @@ class Api {
     constructor() { }
 
     async fetchBooks(): Promise<any> {
-        const response = await fetch('http://localhost:4000/books');
-        const books = await response.json();
-        this.booksActionsCreator.booksReceived(books);
+        const booksQuery = `query {
+            books {
+                _id,
+                title,
+                author
+            }
+        }`;
+        const response = await fetch('http://localhost:4000/graphql?query=' + encodeURIComponent(booksQuery), { method: 'POST' });
+        const graphqlResponse = await response.json();
+        this.booksActionsCreator.booksReceived(graphqlResponse.data.books);
     }
 };
 
