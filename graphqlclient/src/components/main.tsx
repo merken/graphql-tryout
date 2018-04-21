@@ -1,47 +1,18 @@
 import * as React from 'react';
+import { createFragmentContainer, graphql } from 'react-relay';
+import { Component } from 'react';
 
-import Api from '../api';
-import { inject, provideSingleton } from '../inversify.config';
-import BookStore from '../stores/book.store';
+export interface AppProps { store: any; }
 
-export interface AppProps { }
-
-export interface AppState {
-    books: any[]
-}
-
-@provideSingleton("Main")
-export class Main extends React.Component<AppProps, AppState> {
-    @inject("Api")
-    private api: Api;
-
-    @inject("BookStore")
-    private bookStore: BookStore;
-
-    constructor(props: any) {
-        super(props);
-        this.state = { books: [] };
-        this.onChange = this.onChange.bind(this);
-    }
-
-    componentDidMount() {
-        this.bookStore.on("change", this.onChange);
-        this.api.fetchBooks();
-        this.bookStore.getState();
-    }
-
-    componentWillUnmount() {
-        this.bookStore.removeListener("change", this.onChange);
-    }
-
-    onChange() {
-        this.setState(this.bookStore.getState());
-    }
-
+export class Main extends Component<AppProps> {
     render(): React.ReactElement<{}> {
-        let content = this.state.books.map(book => {
-            return <li key={book._id}>{book.title}</li>;
-        })
+        let content = "";
+        if (this.props.store.books) {
+            content = this.props.store.books.map((book: any) => {
+                return <li key={book._id}>{book.title}</li>;
+            });
+        }
+
         return <div>
             Books
             <ul>
@@ -50,3 +21,14 @@ export class Main extends React.Component<AppProps, AppState> {
         </div>;
     }
 }
+
+export default createFragmentContainer(Main, {
+    store: graphql`
+        fragment main_store on Store {
+            books {
+                _id
+                title
+                author
+            }
+        }`
+});

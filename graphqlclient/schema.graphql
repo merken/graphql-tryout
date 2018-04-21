@@ -1,0 +1,13 @@
+type Book {
+  _id: ID
+  title: String
+  author: String
+}
+
+type Store {
+  books: [Book]
+}
+
+type Query {
+  store: Store
+}

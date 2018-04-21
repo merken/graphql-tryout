@@ -2,8 +2,19 @@ import { GraphQLSchema, GraphQLObjectType, GraphQLInt, GraphQLString, GraphQLLis
 import { Db } from 'mongodb';
 
 let initializeSchema = (db: Db) => {
+    let store = {};
+    let storeType = new GraphQLObjectType({
+        name: 'Store',
+        fields: () => ({
+            books: {
+                type: new GraphQLList(bookType),
+                resolve: () => db.collection('books').find({}).toArray()
+            }
+        })
+    });
+
     let bookType = new GraphQLObjectType({
-        name: 'Books',
+        name: 'Book',
         fields: () => ({
             _id: { type: GraphQLString },
             title: { type: GraphQLString },
@@ -15,9 +26,9 @@ let initializeSchema = (db: Db) => {
         query: new GraphQLObjectType({
             name: 'Query',
             fields: () => ({
-                books: {
-                    type: new GraphQLList(bookType),
-                    resolve: () => db.collection('books').find({}).toArray()
+                store: {
+                    type: storeType,
+                    resolve: () => store
                 }
             })
         })
